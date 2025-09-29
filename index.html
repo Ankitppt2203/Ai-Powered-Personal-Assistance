@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareBot - Your Health Assistant</title>
+  <style>
+    :root {
+      --primary: #4a90e2;
+      --secondary: #357ab7;
+      --bg: #f9fafc;
+      --white: #fff;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: var(--bg);
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: var(--white);
+      padding: 15px 30px;
+      text-align: center;
+      font-size: 1.6em;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    /* Navigation */
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      background: var(--white);
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: var(--primary);
+      font-weight: bold;
+      padding: 5px 12px;
+      border-radius: 8px;
+      transition: 0.3s;
+    }
+
+    nav a:hover {
+      background: var(--primary);
+      color: var(--white);
+    }
+
+    /* Mobile nav toggle */
+    .menu-toggle {
+      display: none;
+      position: absolute;
+      right: 20px;
+      top: 15px;
+      font-size: 1.5em;
+      cursor: pointer;
+    }
+
+    @media(max-width: 768px) {
+      nav {
+        flex-direction: column;
+        display: none;
+      }
+      nav.show {
+        display: flex;
+      }
+      .menu-toggle {
+        display: block;
+      }
+    }
+
+    section {
+      padding: 30px;
+      max-width: 900px;
+      margin: auto;
+      animation: fadeIn 0.8s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Chat Section */
+    .chat-box {
+      background: var(--white);
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      height: 400px;
+      overflow-y: auto;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .message {
+      margin: 6px 0;
+      padding: 10px 14px;
+      border-radius: 12px;
+      max-width: 75%;
+      animation: slideUp 0.4s ease;
+      word-wrap: break-word;
+    }
+
+    .user {
+      align-self: flex-end;
+      background: var(--primary);
+      color: var(--white);
+    }
+
+    .bot {
+      align-self: flex-start;
+      background: #ececec;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .chat-input {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .chat-input input[type="text"] {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+    }
+
+    .chat-input button {
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .chat-input button:hover {
+      background: var(--secondary);
+      transform: scale(1.05);
+    }
+
+    /* Cards */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: var(--white);
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+      transition: 0.3s;
+      text-align: center;
+      animation: fadeIn 0.8s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .card h3 {
+      margin-bottom: 12px;
+      color: var(--primary);
+    }
+
+    .card input, .card button, .card textarea {
+      margin-top: 10px;
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 0.95em;
+    }
+
+    .card button {
+      background: var(--primary);
+      color: var(--white);
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .card button:hover {
+      background: var(--secondary);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    💙 CareBot - Your Health Assistant
+    <span class="menu-toggle" onclick="toggleMenu()">☰</span>
+  </header>
+
+  <nav id="navbar">
+    <a href="#chat">Chat Support</a>
+    <a href="#history">Medical History</a>
+    <a href="#reports">Upload Reports</a>
+    <a href="#consult">Consult a Doctor</a>
+    <a href="#hospitals">Nearby Hospitals</a>
+  </nav>
+
+  <!-- Chat Section -->
+  <section id="chat">
+    <h2>💬 Chat with CareBot</h2>
+    <div class="chat-box" id="chatBox">
+      <div class="message bot">Hello! I am CareBot. How can I help you today?</div>
+    </div>
+    <div class="chat-input">
+      <!-- Hidden file input -->
+      <input type="file" id="fileInput" accept="image/*,.pdf" style="display: none;" onchange="sendFile(this)">
+      <button onclick="document.getElementById('fileInput').click()">📎</button>
+
+      <!-- Text input -->
+      <input type="text" id="userInput" placeholder="Type your message...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </section>
+
+  <!-- Other Sections -->
+  <section id="history">
+    <h2>📖 Your Medical History</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Add Previous History</h3>
+        <textarea placeholder="Write about your medical history..." rows="4"></textarea>
+        <button>Save</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="reports">
+    <h2>📂 Upload Medical Reports</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Upload Reports</h3>
+        <input type="file" id="reportFile">
+        <button onclick="uploadReport()">Upload</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="consult">
+    <h2>👨‍⚕️ Consult a Doctor</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Book Appointment</h3>
+        <input type="text" placeholder="Enter Doctor's Name" id="doctorName">
+        <button onclick="bookAppointment()">Book</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="hospitals">
+    <h2>🏥 Find Nearby Hospitals</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Search Hospitals</h3>
+        <input type="text" placeholder="Enter your location" id="hospitalLocation">
+        <button onclick="searchHospitals()">Search</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    function toggleMenu() {
+      document.getElementById("navbar").classList.toggle("show");
+    }
+
+    async function sendMessage() {
+      let input = document.getElementById("userInput");
+      let chatBox = document.getElementById("chatBox");
+
+      if (input.value.trim() !== "") {
+        // User message
+        let userMsg = document.createElement("div");
+        userMsg.classList.add("message", "user");
+        userMsg.textContent = input.value;
+        chatBox.appendChild(userMsg);
+
+        // Bot thinking
+        let botMsg = document.createElement("div");
+        botMsg.classList.add("message", "bot");
+        botMsg.textContent = "⏳ Thinking...";
+        chatBox.appendChild(botMsg);
+
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // Call backend API (relative path so it works when served from same host)
+        try {
+          let response = await fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: input.value })
+          });
+          let data = await response.json();
+          botMsg.textContent = data.reply;
+        } catch (err) {
+          botMsg.textContent = "⚠️ Error connecting to CareBot.";
+          console.error(err);
+        }
+
+        input.value = "";
+      }
+    }
+
+    function sendFile(input) {
+      let file = input.files[0];
+      if (file) {
+        let chatBox = document.getElementById("chatBox");
+
+        // Show uploaded file in chat
+        let fileMsg = document.createElement("div");
+        fileMsg.classList.add("message", "user");
+
+        if (file.type.startsWith("image/")) {
+          let img = document.createElement("img");
+          img.src = URL.createObjectURL(file);
+          img.style.maxWidth = "150px";
+          img.style.borderRadius = "8px";
+          fileMsg.appendChild(img);
+        } else if (file.type === "application/pdf") {
+          let link = document.createElement("a");
+          link.href = URL.createObjectURL(file);
+          link.textContent = "📄 " + file.name;
+          link.target = "_blank";
+          fileMsg.appendChild(link);
+        } else {
+          fileMsg.textContent = "Uploaded: " + file.name;
+        }
+
+        chatBox.appendChild(fileMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // Bot dummy response
+        let botMsg = document.createElement("div");
+        botMsg.classList.add("message", "bot");
+        botMsg.textContent = "Thanks for uploading! I’ll analyze this (AI integration needed).";
+        chatBox.appendChild(botMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+    }
+
+    async function uploadReport() {
+      const fileInput = document.getElementById("reportFile");
+      if (!fileInput.files.length) return alert("Choose a file first");
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+
+      try {
+        let res = await fetch("/api/upload_report", {
+          method: "POST",
+          body: formData
+        });
+        let data = await res.json();
+        alert(data.message || "Uploaded");
+      } catch (e) {
+        console.error(e);
+        alert("Upload failed");
+      }
+    }
+
+    function bookAppointment() {
+      const name = document.getElementById("doctorName").value.trim();
+      if (!name) return alert("Enter doctor's name");
+      alert("Appointment requested with Dr. " + name + ". (Demo)");
+    }
+
+    function searchHospitals() {
+      const loc = document.getElementById("hospitalLocation").value.trim();
+      if (!loc) return alert("Enter location");
+      alert("Searching hospitals near " + loc + " (Demo).");
+    }
+  </script>
+
+</body>
+</html>
